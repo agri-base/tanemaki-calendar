@@ -321,18 +321,120 @@ export default function TanemakiCalendar() {
   const moonPhase = getMoonPhase(currentDate);
   const weekendWeather = getWeekendWeather();
 
+  {/* 今まける野菜（大きく表示） */}
+      {climate && activeTab === "browse" && sowableVegetables.length > 0 && (
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto 2rem",
+          background: "linear-gradient(135deg, #6b8e23 0%, #8fbc8f 100%)",
+          borderRadius: "16px",
+          padding: "2rem",
+          boxShadow: "0 8px 32px rgba(107, 142, 35, 0.3)",
+          color: "white"
+        }}>
+          <h2 style={{
+            fontSize: "2rem",
+            fontWeight: "800",
+            marginBottom: "1rem",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem"
+          }}>
+            <Sprout size={32} />
+            今、{prefecture}で種まきできる野菜
+          </h2>
+          <p style={{
+            textAlign: "center",
+            fontSize: "1.1rem",
+            marginBottom: "1.5rem",
+            opacity: 0.9
+          }}>
+            {currentMonth}月は {sowableVegetables.length}種類の野菜が種まき適期です
+          </p>
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "1rem",
+            justifyContent: "center"
+          }}>
+            {sowableVegetables.slice(0, 10).map(veg => (
+              <button
+                key={veg.id}
+                onClick={() => setSelectedVegetable(veg)}
+                style={{
+                  padding: "0.75rem 1.5rem",
+                  background: "rgba(255, 255, 255, 0.2)",
+                  border: "2px solid rgba(255, 255, 255, 0.5)",
+                  borderRadius: "12px",
+                  color: "white",
+                  fontSize: "1.1rem",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "all 0.3s",
+                  backdropFilter: "blur(10px)"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "rgba(255, 255, 255, 0.3)";
+                  e.target.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "rgba(255, 255, 255, 0.2)";
+                  e.target.style.transform = "translateY(0)";
+                }}
+              >
+                {veg.name}
+              </button>
+            ))}
+          </div>
+          {sowableVegetables.length > 10 && (
+            <p style={{
+              textAlign: "center",
+              marginTop: "1rem",
+              fontSize: "0.9rem",
+              opacity: 0.8
+            }}>
+              他 {sowableVegetables.length - 10}種類
+            </p>
+          )}
+        </div>
+      )}
+```
+
+---
+
+## ✅ 保存
+
+画面右上の **「Commit changes...」** をクリック
+
+コミットメッセージ：
+```
+全角郵便番号対応と「今まける野菜」表示を追加
   const handlePostalCodeChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
-    setPostalCode(value);
-    
-    if (value.length === 7) {
-      const pref = getPrefectureFromPostal(value);
-      if (pref) {
-        setPrefecture(pref);
-        setClimate(CLIMATE_DATA[pref]);
-      }
+  // 全角数字を半角に変換してから数字以外を除去
+  const value = e.target.value
+    .replace(/[０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+    .replace(/[^0-9]/g, "");
+  setPostalCode(value);
+  
+  if (value.length === 7) {
+    const pref = getPrefectureFromPostal(value);
+    if (pref) {
+      setPrefecture(pref);
+      setClimate(CLIMATE_DATA[pref]);
     }
-  };
+  }
+};
+```
+
+---
+
+### 修正2：「今まける野菜」を表示
+
+**Ctrl + F** で検索：
+```
+{climate && showOnlySowable && activeTab === "browse"
 
   const addToSeedList = (vegetable) => {
     if (!seedList.find(s => s.id === vegetable.id)) {
